@@ -1,0 +1,23 @@
+:root{--bg:#eef3f1;--sf:#fff;--ink:#12302b;--ac:#0f766e;--ln:#d3e0dc;--wn:#c2410c}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1a18;--sf:#142623;--ink:#e3f1ee;--ac:#2dd4bf;--ln:#25403b;--wn:#fb923c}}
+*{box-sizing:border-box}body{margin:0;font:15px system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+.card{max-width:360px;margin:12vh auto;padding:24px;background:var(--sf);border:1px solid var(--ln);border-radius:12px}
+label{display:block;margin:10px 0;font-size:13px}input,select{width:100%;padding:8px;border:1px solid var(--ln);border-radius:6px;background:var(--sf);color:var(--ink)}
+button{background:var(--ac);color:var(--bg);border:0;border-radius:6px;padding:8px 14px;cursor:pointer;font-weight:600}
+button.g{background:none;color:var(--ink);border:1px solid var(--ln)}
+header{display:flex;gap:12px;align-items:center;padding:12px 20px;background:var(--ink);color:var(--bg)}header b{margin-right:auto}
+nav{display:flex;gap:6px;padding:10px 20px;overflow-x:auto;border-bottom:1px solid var(--ln)}nav button{background:none;color:var(--ink);white-space:nowrap}nav button.on{background:var(--ac);color:var(--bg)}
+main{padding:20px;max-width:1150px;margin:auto}form{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;align-items:end;margin-bottom:20px}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:8px;border-bottom:1px solid var(--ln)}
+.err{color:var(--wn)}.sm{padding:3px 9px;margin-right:4px;font-size:12px}.tag{color:var(--wn);font-weight:600}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}.stat{background:var(--sf);border:1px solid var(--ln);border-radius:10px;padding:14px}.stat b{display:block;font-size:28px}
+.day{background:var(--sf);border:1px solid var(--ln);border-radius:8px;padding:10px;margin-bottom:10px}
+dialog{background:var(--sf);color:var(--ink);border:1px solid var(--ln);border-radius:12px;max-width:640px;width:94%}
+@media print{header,nav,main,#login{display:none!important}}
+
+[data-portal=admin]{--ac:#475569}[data-portal=doctor]{--ac:#2563eb}[data-portal=nurse]{--ac:#db2777}[data-portal=receptionist]{--ac:#d97706}
+[data-portal=lab]{--ac:#7c3aed}[data-portal=pharmacist]{--ac:#059669}[data-portal=accountant]{--ac:#0d9488}
+.portals{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;max-width:900px;margin:0 auto;padding:20px}
+.portals a{display:block;padding:20px;background:var(--sf);border:1px solid var(--ln);border-radius:12px;color:var(--ink);text-decoration:none;font-weight:600}
+.portals a small{display:block;font-weight:400;opacity:.7;margin-top:4px}.portals a:hover{border-color:var(--ac)}
+h1.t{text-align:center;margin:8vh 0 4px}p.c{text-align:center;opacity:.7;margin:0}

@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laboratory portal · HMS</title><link rel="stylesheet" href="style.css"></head><body data-portal="lab">
+<div id="login" class="card"><h1>Laboratory portal</h1><p><a href="/">← All portals</a></p>
+<label>Username<input id="u" value="lab"></label>
+<label>Password<input id="p" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')login()"></label>
+<p id="err" class="err"></p><button onclick="login()">Sign in</button></div>
+<div id="app" hidden><header><b>HMS</b><span id="who"></span><button onclick="logout()">Log out</button></header>
+<nav id="nav"></nav><main id="main"></main></div>
+<dialog id="dlg"></dialog><input type="file" id="file" hidden>
+<script src="app.js"></script></body></html>
