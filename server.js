@@ -1,6 +1,10 @@
-const express = require('express'), db = require('./src/db'), routes = require('./src/routes');
+const express = require('express'), db = require('./src/db'), routes = require('./src/routes'), ASSETS = require('./src/assets');
 const app = express(), ready = db.init(); ready.catch(e => console.error(e));
-app.use(express.json({ limit: '3mb' })); app.use(express.static('public'));
+app.use(express.json({ limit: '3mb' }));
+app.use((req, res, next) => {
+  const a = req.method === 'GET' && ASSETS[req.path === '/' ? 'index.html' : req.path.slice(1)];
+  a ? res.type(a.type).send(a.body) : next();
+});
 app.use('/api', async (req, res, next) => { try { await ready; next(); } catch (e) { next(e); } }, routes);
 app.use((e, req, res, next) => res.status(e.status || 500).json({ error: e.status ? e.message : 'Server error' }));
 module.exports = app;
