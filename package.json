@@ -1,0 +1,2 @@
+{"name":"hms","version":"2.0.0","main":"server.js","scripts":{"start":"node server.js","restore":"node scripts/restore.js"},
+"dependencies":{"bcryptjs":"^2.4.3","express":"^4.19.2","pg":"^8.11.5","pg-mem":"^2.8.1"}}
