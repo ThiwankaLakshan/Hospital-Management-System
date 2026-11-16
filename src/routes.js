@@ -23,7 +23,7 @@ router.post('/admissions/:id/discharge', A.allow('doctor nurse receptionist'), h
 router.get('/documents/:id/file', A.allow('doctor nurse receptionist'), h(async (req, res) => res.json((await q('select filename,data from documents where id=$1', [req.params.id]))[0] || {})));
 
 // generic CRUD guarded by role
-router.use('/:t', (req, res, next) => COLS[req.params.t] ? (A.can(req.s.role, req.params.t, req.method) ? next() : res.status(403).json({ error: `Your role (${req.s.role}) cannot ${req.method} ${req.params.t}` })) : res.status(404).json({ error: 'Unknown module' }));
+router.use('/:t', (req, res, next) => COLS[req.params.t] ? (A.can(req.s.role, req.params.t, req.method) ? next() : res.status(403).json({ error: 'Your role cannot access this module' })) : res.status(404).json({ error: 'Unknown module' }));
 const pick = (t, b) => COLS[t].split(' ').filter(c => c in b).map(c => [c, b[c] === '' ? null : b[c]]);
 router.get('/:t', h(async (req, res) => {
   const t = req.params.t;

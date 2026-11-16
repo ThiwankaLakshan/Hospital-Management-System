@@ -10,7 +10,7 @@ const ROLES = {
 const ALL = ['patients','doctors','departments','appointments','admissions','medical_records','lab_tests','pharmacy','billing','payments','employees','attendance','leaves','documents'];
 const READ_ALL = ['patients','doctors','departments','pharmacy']; // lookups for dropdowns
 // Stateless signed tokens (work across serverless instances). Set SESSION_SECRET in production.
-const SECRET = process.env.SESSION_SECRET || (process.env.DATABASE_URL ? crypto.createHash('sha256').update('hms:' + process.env.DATABASE_URL).digest('hex') : crypto.randomBytes(32).toString('hex'));
+const SECRET = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
 const mac = b => crypto.createHmac('sha256', SECRET).update(b).digest('base64url');
 const sign = s => { const b = Buffer.from(JSON.stringify(s)).toString('base64url'); return b + '.' + mac(b); };
 const verify = t => {
