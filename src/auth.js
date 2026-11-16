@@ -28,7 +28,9 @@ async function login(username, password, portal) {
 const auth = async (req, res, next) => {
   try {
     res.set('Cache-Control', 'no-store');
+    delete req.headers['if-none-match']; delete req.headers['if-modified-since']; // never answer 304 from a stale cache
     const t = req.headers.authorization;
+    if (t) res.set('X-Token', t); // older cached pages swap their token for this header, so it must always be the current one
     if (!t) return res.status(401).json({ error: 'No session token received. Please log in again.' });
     await ensure();
     const [s] = await q('select * from sessions where token=$1', [t]);
