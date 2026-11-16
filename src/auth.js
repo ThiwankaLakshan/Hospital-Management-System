@@ -9,30 +9,34 @@ const ROLES = {
 };
 const ALL = ['patients','doctors','departments','appointments','admissions','medical_records','lab_tests','pharmacy','billing','payments','employees','attendance','leaves','documents'];
 const READ_ALL = ['patients','doctors','departments','pharmacy']; // lookups for dropdowns
-// Stateless signed tokens (work across serverless instances). Set SESSION_SECRET in production.
-const SECRET = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
-const mac = b => crypto.createHmac('sha256', SECRET).update(b).digest('base64url');
-const sign = s => { const b = Buffer.from(JSON.stringify(s)).toString('base64url'); return b + '.' + mac(b); };
-const verify = t => {
-  const [b, g] = String(t || '').split('.'); if (!b || !g) return null;
-  const ok = mac(b); if (g.length !== ok.length || !crypto.timingSafeEqual(Buffer.from(g), Buffer.from(ok))) return null;
-  const s = JSON.parse(Buffer.from(b, 'base64url').toString()); return s.exp > Date.now() ? s : null;
-};
+// Sessions are stored in the database, so every serverless instance sees the same logins (15 min sliding timeout)
+let ready;
+const ensure = () => ready || (ready = q('create table if not exists sessions(token text primary key, user_id integer, username text, role text, exp text)').catch(e => { ready = null; throw e; }));
 const mods = r => ROLES[r] === '*' ? ALL : ROLES[r].split(' ');
 const can = (r, m, method) => ROLES[r] === '*' || mods(r).includes(m) || (method === 'GET' && READ_ALL.includes(m));
 
 async function login(username, password, portal) {
   const [u] = await q('select * from users where username=$1', [username || '']);
   if (!u || u.role !== portal || !bcrypt.compareSync(password || '', u.hash)) return null; // each portal only accepts its own role
-  const token = sign({ id: u.id, user: u.username, role: u.role, exp: Date.now() + 9e5 });
+  await ensure();
+  const token = crypto.randomBytes(24).toString('hex');
+  await q('delete from sessions where exp < $1', [String(Date.now())]);
+  await q('insert into sessions(token,user_id,username,role,exp) values($1,$2,$3,$4,$5)', [token, u.id, u.username, u.role, String(Date.now() + 9e5)]);
   await audit(u.username, 'login');
   return { token, name: u.username, role: u.role, modules: mods(u.role), reports: ['admin', 'accountant'].includes(u.role) };
 }
-const auth = (req, res, next) => {
-  const s = verify(req.headers.authorization);
-  if (!s) return res.status(401).json({ error: 'Session expired. Please log in again.' });
-  res.set('X-Token', sign({ ...s, exp: Date.now() + 9e5 })); // sliding 15 minute timeout
-  req.s = s; next();
+const auth = async (req, res, next) => {
+  try {
+    res.set('Cache-Control', 'no-store');
+    const t = req.headers.authorization;
+    if (!t) return res.status(401).json({ error: 'No session token received. Please log in again.' });
+    await ensure();
+    const [s] = await q('select * from sessions where token=$1', [t]);
+    if (!s) return res.status(401).json({ error: 'Session not found. Please log in again.' });
+    if (Number(s.exp) < Date.now()) return res.status(401).json({ error: 'Session expired. Please log in again.' });
+    await q('update sessions set exp=$1 where token=$2', [String(Date.now() + 9e5), t]);
+    req.s = { id: s.user_id, user: s.username, role: s.role }; next();
+  } catch (e) { next(e); }
 };
 const allow = roles => (req, res, next) => req.s.role === 'admin' || roles.split(' ').includes(req.s.role) ? next() : res.status(403).json({ error: 'Your role cannot do this' });
 async function changePassword(s, oldPw, newPw) {
